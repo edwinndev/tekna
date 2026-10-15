@@ -34,34 +34,65 @@ com.tekna.api
 │       └── SearchInput.java
 ├── config
 │   ├── GlobalExceptionHandler.java
-│   ├── OpenApiConfig.java
-│   └── JpaConfig.java
-└── product
-    ├── controller
-    │   └── ProductController.java
-    ├── dto
-    │   ├── CreateProductInput.java
-    │   ├── UpdateProductInput.java
-    │   ├── ProductFilterInput.java
-    │   └── ProductOutput.java
-    ├── mapper
-    │   └── ProductMapper.java
-    ├── persistence
-    │   ├── entity
-    │   │   └── Product.java
-    │   ├── repository
-    │   │   └── ProductRepository.java
-    │   └── specification
-    │       └── ProductSpecification.java
-    └── service
-        ├── ProductService.java
-        └── impl
-            └── ProductServiceImpl.java
+│   ├── JpaConfig.java
+│   └── OpenApiConfig.java
+├── controller
+│   ├── CategoryController.java
+│   ├── InventoryMovementController.java
+│   ├── ProductController.java
+│   └── SupplierController.java
+├── dto
+│   ├── CategoryFilterInput.java
+│   ├── CategoryOutput.java
+│   ├── CreateCategoryInput.java
+│   ├── UpdateCategoryInput.java
+│   ├── CreateInventoryMovementInput.java
+│   ├── InventoryMovementFilterInput.java
+│   └── InventoryMovementOutput.java
+│   ├── CreateProductInput.java
+│   ├── ProductFilterInput.java
+│   ├── ProductOutput.java
+│   ├── UpdateProductInput.java
+│   ├── CreateSupplierInput.java
+│   ├── SupplierFilterInput.java
+│   ├── SupplierOutput.java
+│   └── UpdateSupplierInput.java
+├── entity
+│   ├── Category.java
+│   ├── InventoryMovement.java
+│   ├── MovementType.java
+│   ├── Product.java
+│   └── Supplier.java
+├── mapper
+│   ├── CategoryMapper.java
+│   ├── InventoryMovementMapper.java
+│   ├── ProductMapper.java
+│   └── SupplierMapper.java
+├── repository
+│   ├── CategoryRepository.java
+│   ├── InventoryMovementRepository.java
+│   ├── ProductRepository.java
+│   └── SupplierRepository.java
+├── specification
+│   ├── CategorySpecification.java
+│   ├── InventoryMovementSpecification.java
+│   ├── ProductSpecification.java
+│   └── SupplierSpecification.java
+└── service
+    ├── CategoryService.java
+    ├── InventoryMovementService.java
+    ├── ProductService.java
+    ├── SupplierService.java
+    └── impl
+        ├── CategoryServiceImpl.java
+        ├── InventoryMovementServiceImpl.java
+        ├── ProductServiceImpl.java
+        └── SupplierServiceImpl.java
 ```
 
 ---
 
-### 2. Persistence Layer (`persistence/entities` & `persistence/repository`)
+### 2. Persistence Layer (`entity` & `repository`)
 
 #### Naming Conventions
 - **Java Entities**: Singular and English (e.g., `Product`, `User`, `Category`).
@@ -115,26 +146,26 @@ public abstract class BaseEntity {
     private Instant createdAt;
 
     @Column(name = "created_by", nullable = false, updatable = false)
-    private String createdBy;
+    private UUID createdBy;
 
     @UpdateTimestamp
     @Column(name = "updated_at", columnDefinition = "TIMESTAMP(3)")
     private Instant updatedAt;
 
     @Column(name = "updated_by")
-    private String updatedBy;
+    private UUID updatedBy;
 
     @Column(name = "deleted_at", columnDefinition = "TIMESTAMP(3)")
     private Instant deletedAt;
 
     @Column(name = "deleted_by")
-    private String deletedBy;
+    private UUID deletedBy;
 }
 ```
 
 #### Entity Example
 ```java
-package com.tekna.api.product.persistence.entity;
+package com.tekna.api.entity;
 
 import com.tekna.api.common.entity.BaseEntity;
 import jakarta.persistence.Column;
@@ -153,6 +184,9 @@ import java.math.BigDecimal;
 @SQLRestriction("deleted_at is null")
 public class Product extends BaseEntity {
 
+    @Column(name = "sku", nullable = false, unique = true, length = 50)
+    private String sku;
+
     @Column(name = "name", nullable = false)
     private String name;
 
@@ -164,6 +198,9 @@ public class Product extends BaseEntity {
 
     @Column(name = "stock", nullable = false)
     private Integer stock;
+
+    @Column(name = "min_stock", nullable = false)
+    private Integer minStock;
 }
 ```
 
@@ -171,9 +208,9 @@ public class Product extends BaseEntity {
 - Repositories must extend `JpaRepository<Entity, UUID>` and `JpaSpecificationExecutor<Entity>`.
 - Annotated with `@Repository`.
 ```java
-package com.tekna.api.product.persistence.repository;
+package com.tekna.api.repository;
 
-import com.tekna.api.product.persistence.entity.Product;
+import com.tekna.api.entity.Product;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.stereotype.Repository;
@@ -203,7 +240,7 @@ public interface ProductRepository extends JpaRepository<Product, UUID>, JpaSpec
 
 #### Request Inputs Structure
 ```java
-package com.tekna.api.product.dto;
+package com.tekna.api.dto;
 
 import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.Min;
@@ -234,7 +271,7 @@ public class CreateProductInput {
 ```
 
 ```java
-package com.tekna.api.product.dto;
+package com.tekna.api.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.Getter;
@@ -253,7 +290,7 @@ public class UpdateProductInput extends CreateProductInput {
 
 #### Response Output Structure
 ```java
-package com.tekna.api.product.dto;
+package com.tekna.api.dto;
 
 import lombok.Getter;
 import lombok.Setter;
@@ -338,15 +375,15 @@ public class PageOutput<T> {
 
 #### Controller Example
 ```java
-package com.tekna.api.product.controller;
+package com.tekna.api.controller;
 
 import com.tekna.api.common.pagination.PageOutput;
 import com.tekna.api.common.pagination.SearchInput;
-import com.tekna.api.product.dto.CreateProductInput;
-import com.tekna.api.product.dto.ProductFilterInput;
-import com.tekna.api.product.dto.ProductOutput;
-import com.tekna.api.product.dto.UpdateProductInput;
-import com.tekna.api.product.service.ProductService;
+import com.tekna.api.dto.CreateProductInput;
+import com.tekna.api.dto.ProductFilterInput;
+import com.tekna.api.dto.ProductOutput;
+import com.tekna.api.dto.UpdateProductInput;
+import com.tekna.api.service.ProductService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
@@ -442,14 +479,14 @@ public class ProductController {
 - MapStruct is injected into the implementation for entity-to-DTO and DTO-to-entity mapping.
 
 ```java
-package com.tekna.api.product.service;
+package com.tekna.api.service;
 
 import com.tekna.api.common.pagination.PageOutput;
 import com.tekna.api.common.pagination.SearchInput;
-import com.tekna.api.product.dto.CreateProductInput;
-import com.tekna.api.product.dto.ProductFilterInput;
-import com.tekna.api.product.dto.ProductOutput;
-import com.tekna.api.product.dto.UpdateProductInput;
+import com.tekna.api.dto.CreateProductInput;
+import com.tekna.api.dto.ProductFilterInput;
+import com.tekna.api.dto.ProductOutput;
+import com.tekna.api.dto.UpdateProductInput;
 
 import java.util.UUID;
 
@@ -463,20 +500,20 @@ public interface ProductService {
 ```
 
 ```java
-package com.tekna.api.product.service.impl;
+package com.tekna.api.service.impl;
 
 import com.tekna.api.common.exception.NotFoundException;
 import com.tekna.api.common.pagination.PageOutput;
 import com.tekna.api.common.pagination.SearchInput;
-import com.tekna.api.product.dto.CreateProductInput;
-import com.tekna.api.product.dto.ProductFilterInput;
-import com.tekna.api.product.dto.ProductOutput;
-import com.tekna.api.product.dto.UpdateProductInput;
-import com.tekna.api.product.mapper.ProductMapper;
-import com.tekna.api.product.persistence.entity.Product;
-import com.tekna.api.product.persistence.repository.ProductRepository;
-import com.tekna.api.product.persistence.specification.ProductSpecification;
-import com.tekna.api.product.service.ProductService;
+import com.tekna.api.dto.CreateProductInput;
+import com.tekna.api.dto.ProductFilterInput;
+import com.tekna.api.dto.ProductOutput;
+import com.tekna.api.dto.UpdateProductInput;
+import com.tekna.api.entity.Product;
+import com.tekna.api.mapper.ProductMapper;
+import com.tekna.api.repository.ProductRepository;
+import com.tekna.api.service.ProductService;
+import com.tekna.api.specification.ProductSpecification;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
@@ -496,6 +533,8 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
 
+    private static final UUID SYSTEM_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
+
     private final ProductRepository productRepository;
     private final ProductMapper productMapper;
 
@@ -504,7 +543,7 @@ public class ProductServiceImpl implements ProductService {
     public ProductOutput create(CreateProductInput input) {
         log.info("Creating new product with name: {}", input.getName());
         Product product = productMapper.toEntity(input);
-        product.setCreatedBy("system");
+        product.setCreatedBy(SYSTEM_USER_ID);
         Product savedProduct = productRepository.save(product);
         return productMapper.toOutput(savedProduct);
     }
@@ -516,7 +555,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(input.getId())
                 .orElseThrow(() -> new NotFoundException("Product not found with id: " + input.getId()));
         productMapper.updateEntityFromInput(input, product);
-        product.setUpdatedBy("system");
+        product.setUpdatedBy(SYSTEM_USER_ID);
         Product updatedProduct = productRepository.save(product);
         return productMapper.toOutput(updatedProduct);
     }
@@ -551,7 +590,7 @@ public class ProductServiceImpl implements ProductService {
         Product product = productRepository.findById(id)
                 .orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
         product.setDeletedAt(Instant.now());
-        product.setDeletedBy("system");
+        product.setDeletedBy(SYSTEM_USER_ID);
         productRepository.save(product);
     }
 }
@@ -559,12 +598,12 @@ public class ProductServiceImpl implements ProductService {
 
 #### MapStruct Mapper
 ```java
-package com.tekna.api.product.mapper;
+package com.tekna.api.mapper;
 
-import com.tekna.api.product.dto.CreateProductInput;
-import com.tekna.api.product.dto.ProductOutput;
-import com.tekna.api.product.dto.UpdateProductInput;
-import com.tekna.api.product.persistence.entity.Product;
+import com.tekna.api.dto.CreateProductInput;
+import com.tekna.api.dto.ProductOutput;
+import com.tekna.api.dto.UpdateProductInput;
+import com.tekna.api.entity.Product;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 import org.mapstruct.MappingTarget;
