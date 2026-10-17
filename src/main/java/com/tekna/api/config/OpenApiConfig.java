@@ -10,18 +10,18 @@ import org.springframework.context.annotation.Configuration;
 @Configuration
 public class OpenApiConfig {
 
-    @Bean
-    public OpenAPI customOpenAPI() {
-        return new OpenAPI()
-                .info(new Info()
-                        .title("Tekna Gamer Inventory API")
-                        .version("1.0.0")
-                        .description("RESTful API for inventory control and peripheral product management at Tekna Gamer")
-                        .contact(new Contact()
-                                .name("Tekna Gamer Development Team")
-                                .email("contact@tekna.com"))
-                        .license(new License()
-                                .name("Apache 2.0")
-                                .url("https://springdoc.org")));
-    }
+        @Bean
+        public OpenAPI customOpenAPI() {
+                return new OpenAPI()
+                                .info(new Info()
+                                                .title("Tekna Gamer Inventory API")
+                                                .version("1.0.0")
+                                                .description("RESTful API for inventory control and peripheral product management at Tekna Gamer")
+                                                .contact(new Contact()
+                                                                .name("Tekna Gamer Development Team")
+                                                                .email("contact@tekna.com"))
+                                                .license(new License()
+                                                                .name("Apache 2.0")
+                                                                .url("https://springdoc.org")));
+        }
 }
