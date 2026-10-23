@@ -41,14 +41,14 @@ public class AuthServiceImpl implements AuthService {
     @Override
     @Transactional
     public AuthOutput login(LoginInput input) {
-        log.info("Attempting login for user: {}", input.getUsernameOrEmail());
+        log.info("Attempting login for user: {}", input.getUsername());
 
-        User user = userRepository.findByUsernameOrEmail(input.getUsernameOrEmail().trim())
-                .orElseThrow(() -> new UnauthorizedException("Invalid username/email or password"));
+        User user = userRepository.findByUsername(input.getUsername().trim().toLowerCase())
+                .orElseThrow(() -> new UnauthorizedException("Invalid username or password"));
 
         if (!passwordEncoder.matches(input.getPassword(), user.getPassword())) {
-            log.warn("Invalid password for user: {}", input.getUsernameOrEmail());
-            throw new UnauthorizedException("Invalid username/email or password");
+            log.warn("Invalid password for user: {}", input.getUsername());
+            throw new UnauthorizedException("Invalid username or password");
         }
 
         if (!Boolean.TRUE.equals(user.getIsActive())) {
@@ -73,19 +73,15 @@ public class AuthServiceImpl implements AuthService {
     public AuthOutput register(RegisterInput input) {
         log.info("Registering new user with username: {}", input.getUsername());
 
-        if (userRepository.existsByUsername(input.getUsername().trim())) {
+        String username = input.getUsername().trim().toLowerCase();
+        if (userRepository.existsByUsername(username)) {
             throw new BadRequestException("Username is already taken");
-        }
-
-        if (userRepository.existsByEmail(input.getEmail().trim())) {
-            throw new BadRequestException("Email is already registered");
         }
 
         UUID newUserId = UUID.randomUUID();
         User user = userMapper.toEntity(input);
         user.setId(newUserId);
-        user.setUsername(input.getUsername().trim());
-        user.setEmail(input.getEmail().trim().toLowerCase());
+        user.setUsername(username);
         user.setPassword(passwordEncoder.encode(input.getPassword()));
         user.setRole(input.getRole() != null ? input.getRole() : Role.USER);
         user.setIsActive(true);

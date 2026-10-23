@@ -36,8 +36,7 @@ class JwtServiceTest {
 
         user = new User();
         user.setId(UUID.randomUUID());
-        user.setUsername("nimbususer");
-        user.setEmail("nimbus@tekna.com");
+        user.setUsername("nimbususer@tekna.com");
         user.setRole(Role.ADMIN);
         user.setIsActive(true);
     }
@@ -49,7 +48,7 @@ class JwtServiceTest {
 
         assertThat(token).isNotBlank();
         assertThat(jwtService.validateToken(token)).isTrue();
-        assertThat(jwtService.getUsernameFromToken(token)).isEqualTo("nimbususer");
+        assertThat(jwtService.getUsernameFromToken(token)).isEqualTo("nimbususer@tekna.com");
         assertThat(jwtService.getUserIdFromToken(token)).isEqualTo(user.getId());
         assertThat(jwtService.getRoleFromToken(token)).isEqualTo(Role.ADMIN.name());
         assertThat(jwtService.getExpirationSeconds()).isEqualTo(3600L);

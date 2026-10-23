@@ -44,7 +44,7 @@ public class AuthController {
     @Operation(summary = "Register a new user")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "User registered successfully"),
-        @ApiResponse(responseCode = "400", description = "Invalid input or username/email already exists")
+        @ApiResponse(responseCode = "400", description = "Invalid input or username already exists")
     })
     public ResponseEntity<AuthOutput> register(@Valid @RequestBody RegisterInput input) {
         return ResponseEntity.status(HttpStatus.CREATED).body(authService.register(input));

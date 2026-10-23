@@ -1,8 +1,7 @@
 CREATE TABLE IF NOT EXISTS users
 (
     id         BINARY(16)   NOT NULL PRIMARY KEY,
-    username   VARCHAR(50)  NOT NULL UNIQUE,
-    email      VARCHAR(100) NOT NULL UNIQUE,
+    username   VARCHAR(100) NOT NULL UNIQUE,
     password   VARCHAR(255) NOT NULL,
     first_name VARCHAR(100) NULL,
     last_name  VARCHAR(100) NULL,
@@ -33,18 +32,15 @@ CREATE TABLE IF NOT EXISTS refresh_tokens
 );
 
 CREATE INDEX idx_users_username ON users (username);
-CREATE INDEX idx_users_email ON users (email);
 CREATE INDEX idx_users_deleted_at ON users (deleted_at);
 CREATE INDEX idx_refresh_tokens_token ON refresh_tokens (token);
 CREATE INDEX idx_refresh_tokens_user ON refresh_tokens (user_id);
 CREATE INDEX idx_refresh_tokens_deleted_at ON refresh_tokens (deleted_at);
 
--- Seed initial admin and demo user
--- Password for admin is 'Admin123*' (BCrypt: $2a$10$7EqJtq98hPqEX7fNZaFWoOhu3oM1rY1F5C0kYkHw5r8gP1eEw.z0K)
--- Password for gamer is 'Gamer123*' (BCrypt: $2a$10$e7QJ3k91b1T4WJ2hP0j8EuX9A9s1D3f5G7h9J1k3L5n7P9q1S3u5W)
-INSERT INTO users (id, username, email, password, first_name, last_name, role, is_active, created_by)
+-- Seed initial admin and demo user where username is the email
+-- Default password: password (BCrypt: $2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.)
+INSERT INTO users (id, username, password, first_name, last_name, role, is_active, created_by)
 VALUES (UUID_TO_BIN('a1000000-0000-0000-0000-000000000001'),
-        'admin',
         'admin@tekna.com',
         '$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.',
         'Administrador',
@@ -53,7 +49,6 @@ VALUES (UUID_TO_BIN('a1000000-0000-0000-0000-000000000001'),
         TRUE,
         UUID_TO_BIN('00000000-0000-0000-0000-000000000000')),
        (UUID_TO_BIN('a1000000-0000-0000-0000-000000000002'),
-        'gamer',
         'gamer@tekna.com',
         '$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.',
         'Gamer',

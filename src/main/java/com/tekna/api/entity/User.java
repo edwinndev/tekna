@@ -17,11 +17,8 @@ import org.hibernate.annotations.SQLRestriction;
 @SQLRestriction("deleted_at is null")
 public class User extends BaseEntity {
 
-    @Column(name = "username", nullable = false, unique = true, length = 50)
+    @Column(name = "username", nullable = false, unique = true, length = 100)
     private String username;
-
-    @Column(name = "email", nullable = false, unique = true, length = 100)
-    private String email;
 
     @Column(name = "password", nullable = false)
     private String password;

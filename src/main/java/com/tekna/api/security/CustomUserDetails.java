@@ -16,7 +16,6 @@ public class CustomUserDetails implements UserDetails {
 
     private final UUID id;
     private final String username;
-    private final String email;
     private final String password;
     private final Role role;
     private final boolean active;
@@ -25,7 +24,6 @@ public class CustomUserDetails implements UserDetails {
     public CustomUserDetails(User user) {
         this.id = user.getId();
         this.username = user.getUsername();
-        this.email = user.getEmail();
         this.password = user.getPassword();
         this.role = user.getRole();
         this.active = Boolean.TRUE.equals(user.getIsActive());

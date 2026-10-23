@@ -31,7 +31,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -67,16 +66,14 @@ class AuthServiceImplTest {
 
         user = new User();
         user.setId(userId);
-        user.setUsername("gamertest");
-        user.setEmail("gamertest@tekna.com");
+        user.setUsername("gamertest@tekna.com");
         user.setPassword("encoded_password");
         user.setRole(Role.USER);
         user.setIsActive(true);
 
         userOutput = new UserOutput();
         userOutput.setId(userId);
-        userOutput.setUsername("gamertest");
-        userOutput.setEmail("gamertest@tekna.com");
+        userOutput.setUsername("gamertest@tekna.com");
         userOutput.setRole(Role.USER);
         userOutput.setIsActive(true);
     }
@@ -85,10 +82,10 @@ class AuthServiceImplTest {
     @DisplayName("Should successfully login with valid credentials")
     void login_Success() {
         LoginInput input = new LoginInput();
-        input.setUsernameOrEmail("gamertest");
+        input.setUsername("gamertest@tekna.com");
         input.setPassword("password123");
 
-        when(userRepository.findByUsernameOrEmail("gamertest")).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername("gamertest@tekna.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("password123", "encoded_password")).thenReturn(true);
         when(jwtService.generateAccessToken(user)).thenReturn("jwt.token.here");
         when(jwtService.getExpirationSeconds()).thenReturn(3600L);
@@ -110,15 +107,15 @@ class AuthServiceImplTest {
     @DisplayName("Should throw UnauthorizedException when login credentials password does not match")
     void login_InvalidPassword_ThrowsUnauthorizedException() {
         LoginInput input = new LoginInput();
-        input.setUsernameOrEmail("gamertest");
+        input.setUsername("gamertest@tekna.com");
         input.setPassword("wrongpassword");
 
-        when(userRepository.findByUsernameOrEmail("gamertest")).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername("gamertest@tekna.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("wrongpassword", "encoded_password")).thenReturn(false);
 
         assertThatThrownBy(() -> authService.login(input))
                 .isInstanceOf(UnauthorizedException.class)
-                .hasMessage("Invalid username/email or password");
+                .hasMessage("Invalid username or password");
 
         verify(jwtService, never()).generateAccessToken(any());
     }
@@ -127,14 +124,14 @@ class AuthServiceImplTest {
     @DisplayName("Should throw UnauthorizedException when user does not exist on login")
     void login_UserNotFound_ThrowsUnauthorizedException() {
         LoginInput input = new LoginInput();
-        input.setUsernameOrEmail("nonexistent");
+        input.setUsername("nonexistent@tekna.com");
         input.setPassword("password123");
 
-        when(userRepository.findByUsernameOrEmail("nonexistent")).thenReturn(Optional.empty());
+        when(userRepository.findByUsername("nonexistent@tekna.com")).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> authService.login(input))
                 .isInstanceOf(UnauthorizedException.class)
-                .hasMessage("Invalid username/email or password");
+                .hasMessage("Invalid username or password");
     }
 
     @Test
@@ -142,10 +139,10 @@ class AuthServiceImplTest {
     void login_InactiveUser_ThrowsUnauthorizedException() {
         user.setIsActive(false);
         LoginInput input = new LoginInput();
-        input.setUsernameOrEmail("gamertest");
+        input.setUsername("gamertest@tekna.com");
         input.setPassword("password123");
 
-        when(userRepository.findByUsernameOrEmail("gamertest")).thenReturn(Optional.of(user));
+        when(userRepository.findByUsername("gamertest@tekna.com")).thenReturn(Optional.of(user));
         when(passwordEncoder.matches("password123", "encoded_password")).thenReturn(true);
 
         assertThatThrownBy(() -> authService.login(input))
@@ -157,12 +154,10 @@ class AuthServiceImplTest {
     @DisplayName("Should successfully register a new user")
     void register_Success() {
         RegisterInput input = new RegisterInput();
-        input.setUsername("newgamer");
-        input.setEmail("newgamer@tekna.com");
+        input.setUsername("newgamer@tekna.com");
         input.setPassword("Secret123*");
 
-        when(userRepository.existsByUsername("newgamer")).thenReturn(false);
-        when(userRepository.existsByEmail("newgamer@tekna.com")).thenReturn(false);
+        when(userRepository.existsByUsername("newgamer@tekna.com")).thenReturn(false);
         when(userMapper.toEntity(input)).thenReturn(new User());
         when(passwordEncoder.encode("Secret123*")).thenReturn("encoded_secret");
         when(userRepository.save(any(User.class))).thenReturn(user);
@@ -183,33 +178,14 @@ class AuthServiceImplTest {
     @DisplayName("Should throw BadRequestException when registering with duplicate username")
     void register_DuplicateUsername_ThrowsBadRequestException() {
         RegisterInput input = new RegisterInput();
-        input.setUsername("gamertest");
-        input.setEmail("different@tekna.com");
+        input.setUsername("gamertest@tekna.com");
         input.setPassword("Secret123*");
 
-        when(userRepository.existsByUsername("gamertest")).thenReturn(true);
+        when(userRepository.existsByUsername("gamertest@tekna.com")).thenReturn(true);
 
         assertThatThrownBy(() -> authService.register(input))
                 .isInstanceOf(BadRequestException.class)
                 .hasMessage("Username is already taken");
-
-        verify(userRepository, never()).save(any());
-    }
-
-    @Test
-    @DisplayName("Should throw BadRequestException when registering with duplicate email")
-    void register_DuplicateEmail_ThrowsBadRequestException() {
-        RegisterInput input = new RegisterInput();
-        input.setUsername("uniquename");
-        input.setEmail("gamertest@tekna.com");
-        input.setPassword("Secret123*");
-
-        when(userRepository.existsByUsername("uniquename")).thenReturn(false);
-        when(userRepository.existsByEmail("gamertest@tekna.com")).thenReturn(true);
-
-        assertThatThrownBy(() -> authService.register(input))
-                .isInstanceOf(BadRequestException.class)
-                .hasMessage("Email is already registered");
 
         verify(userRepository, never()).save(any());
     }
