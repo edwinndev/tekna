@@ -13,6 +13,8 @@ import com.tekna.api.entity.Product;
 import com.tekna.api.mapper.ProductMapper;
 import com.tekna.api.repository.CategoryRepository;
 import com.tekna.api.repository.ProductRepository;
+import com.tekna.api.security.UserContext;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -60,6 +62,7 @@ class ProductServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        UserContext.setUserId(UUID.randomUUID());
         productId = UUID.randomUUID();
         categoryId = UUID.randomUUID();
 
@@ -75,6 +78,11 @@ class ProductServiceImplTest {
         product.setStock(10);
         product.setMinStock(5);
         product.setCategory(category);
+    }
+
+    @AfterEach
+    void tearDown() {
+        UserContext.clear();
     }
 
     @Test

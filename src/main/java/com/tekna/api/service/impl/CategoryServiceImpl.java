@@ -11,6 +11,7 @@ import com.tekna.api.dto.UpdateCategoryInput;
 import com.tekna.api.entity.Category;
 import com.tekna.api.mapper.CategoryMapper;
 import com.tekna.api.repository.CategoryRepository;
+import com.tekna.api.security.UserContext;
 import com.tekna.api.service.CategoryService;
 import com.tekna.api.specification.CategorySpecification;
 import lombok.RequiredArgsConstructor;
@@ -32,8 +33,6 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class CategoryServiceImpl implements CategoryService {
 
-    private static final UUID SYSTEM_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
-
     private final CategoryRepository categoryRepository;
     private final CategoryMapper categoryMapper;
 
@@ -48,7 +47,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         Category category = categoryMapper.toEntity(input);
         category.setName(input.getName().trim());
-        category.setCreatedBy(SYSTEM_USER_ID);
+        category.setCreatedBy(UserContext.getUserId());
 
         Category savedCategory = categoryRepository.save(category);
         return categoryMapper.toOutput(savedCategory);
@@ -68,7 +67,7 @@ public class CategoryServiceImpl implements CategoryService {
 
         categoryMapper.updateEntityFromInput(input, category);
         category.setName(input.getName().trim());
-        category.setUpdatedBy(SYSTEM_USER_ID);
+        category.setUpdatedBy(UserContext.getUserId());
 
         Category updatedCategory = categoryRepository.save(category);
         return categoryMapper.toOutput(updatedCategory);
@@ -106,7 +105,7 @@ public class CategoryServiceImpl implements CategoryService {
                 .orElseThrow(() -> new NotFoundException("Category not found with id: " + id));
 
         category.setDeletedAt(Instant.now());
-        category.setDeletedBy(SYSTEM_USER_ID);
+        category.setDeletedBy(UserContext.getUserId());
         categoryRepository.save(category);
     }
 }

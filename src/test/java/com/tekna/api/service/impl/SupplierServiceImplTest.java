@@ -10,6 +10,8 @@ import com.tekna.api.dto.UpdateSupplierInput;
 import com.tekna.api.entity.Supplier;
 import com.tekna.api.mapper.SupplierMapper;
 import com.tekna.api.repository.SupplierRepository;
+import com.tekna.api.security.UserContext;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -50,6 +52,7 @@ class SupplierServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        UserContext.setUserId(UUID.randomUUID());
         supplierId = UUID.randomUUID();
         supplier = new Supplier();
         supplier.setId(supplierId);
@@ -57,6 +60,11 @@ class SupplierServiceImplTest {
         supplier.setContactName("Fernando Quispe");
         supplier.setEmail("ventas@asuswholesale.pe");
         supplier.setPhone("+51 998 877 665");
+    }
+
+    @AfterEach
+    void tearDown() {
+        UserContext.clear();
     }
 
     @Test

@@ -11,6 +11,8 @@ import com.tekna.api.dto.UpdateCategoryInput;
 import com.tekna.api.entity.Category;
 import com.tekna.api.mapper.CategoryMapper;
 import com.tekna.api.repository.CategoryRepository;
+import com.tekna.api.security.UserContext;
+import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -51,11 +53,17 @@ class CategoryServiceImplTest {
 
     @BeforeEach
     void setUp() {
+        UserContext.setUserId(UUID.randomUUID());
         categoryId = UUID.randomUUID();
         category = new Category();
         category.setId(categoryId);
         category.setName("Gaming Monitors");
         category.setDescription("High refresh rate gaming monitors");
+    }
+
+    @AfterEach
+    void tearDown() {
+        UserContext.clear();
     }
 
     @Test

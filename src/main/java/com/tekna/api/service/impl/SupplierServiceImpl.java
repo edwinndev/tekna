@@ -10,6 +10,7 @@ import com.tekna.api.dto.UpdateSupplierInput;
 import com.tekna.api.entity.Supplier;
 import com.tekna.api.mapper.SupplierMapper;
 import com.tekna.api.repository.SupplierRepository;
+import com.tekna.api.security.UserContext;
 import com.tekna.api.service.SupplierService;
 import com.tekna.api.specification.SupplierSpecification;
 import lombok.RequiredArgsConstructor;
@@ -31,8 +32,6 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class SupplierServiceImpl implements SupplierService {
 
-    private static final UUID SYSTEM_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
-
     private final SupplierRepository supplierRepository;
     private final SupplierMapper supplierMapper;
 
@@ -42,7 +41,7 @@ public class SupplierServiceImpl implements SupplierService {
         log.info("Creating supplier with name: {}", input.getName());
 
         Supplier supplier = supplierMapper.toEntity(input);
-        supplier.setCreatedBy(SYSTEM_USER_ID);
+        supplier.setCreatedBy(UserContext.getUserId());
 
         Supplier savedSupplier = supplierRepository.save(supplier);
         return supplierMapper.toOutput(savedSupplier);
@@ -57,7 +56,7 @@ public class SupplierServiceImpl implements SupplierService {
                 .orElseThrow(() -> new NotFoundException("Supplier not found with id: " + input.getId()));
 
         supplierMapper.updateEntityFromInput(input, supplier);
-        supplier.setUpdatedBy(SYSTEM_USER_ID);
+        supplier.setUpdatedBy(UserContext.getUserId());
 
         Supplier updatedSupplier = supplierRepository.save(supplier);
         return supplierMapper.toOutput(updatedSupplier);
@@ -95,7 +94,7 @@ public class SupplierServiceImpl implements SupplierService {
                 .orElseThrow(() -> new NotFoundException("Supplier not found with id: " + id));
 
         supplier.setDeletedAt(Instant.now());
-        supplier.setDeletedBy(SYSTEM_USER_ID);
+        supplier.setDeletedBy(UserContext.getUserId());
         supplierRepository.save(supplier);
     }
 }

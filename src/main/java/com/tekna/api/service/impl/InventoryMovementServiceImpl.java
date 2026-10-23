@@ -15,6 +15,7 @@ import com.tekna.api.mapper.InventoryMovementMapper;
 import com.tekna.api.repository.InventoryMovementRepository;
 import com.tekna.api.repository.ProductRepository;
 import com.tekna.api.repository.SupplierRepository;
+import com.tekna.api.security.UserContext;
 import com.tekna.api.service.InventoryMovementService;
 import com.tekna.api.specification.InventoryMovementSpecification;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +35,6 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class InventoryMovementServiceImpl implements InventoryMovementService {
-
-    private static final UUID SYSTEM_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
 
     private final InventoryMovementRepository movementRepository;
     private final ProductRepository productRepository;
@@ -79,7 +78,7 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
             throw new BadRequestException("Unsupported movement type: " + input.getMovementType());
         }
 
-        product.setUpdatedBy(SYSTEM_USER_ID);
+        product.setUpdatedBy(UserContext.getUserId());
         productRepository.save(product);
 
         InventoryMovement movement = movementMapper.toEntity(input);
@@ -87,7 +86,7 @@ public class InventoryMovementServiceImpl implements InventoryMovementService {
         movement.setSupplier(supplier);
         movement.setPreviousStock(previousStock);
         movement.setNewStock(newStock);
-        movement.setCreatedBy(SYSTEM_USER_ID);
+        movement.setCreatedBy(UserContext.getUserId());
 
         InventoryMovement savedMovement = movementRepository.save(movement);
         return movementMapper.toOutput(savedMovement);

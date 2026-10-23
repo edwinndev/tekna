@@ -13,6 +13,7 @@ import com.tekna.api.entity.Product;
 import com.tekna.api.mapper.ProductMapper;
 import com.tekna.api.repository.CategoryRepository;
 import com.tekna.api.repository.ProductRepository;
+import com.tekna.api.security.UserContext;
 import com.tekna.api.service.ProductService;
 import com.tekna.api.specification.ProductSpecification;
 import lombok.RequiredArgsConstructor;
@@ -34,8 +35,6 @@ import java.util.UUID;
 @Transactional(readOnly = true)
 public class ProductServiceImpl implements ProductService {
 
-    private static final UUID SYSTEM_USER_ID = UUID.fromString("00000000-0000-0000-0000-000000000000");
-
     private final ProductRepository productRepository;
     private final CategoryRepository categoryRepository;
     private final ProductMapper productMapper;
@@ -51,7 +50,7 @@ public class ProductServiceImpl implements ProductService {
 
         Product product = productMapper.toEntity(input);
         product.setSku(input.getSku().trim());
-        product.setCreatedBy(SYSTEM_USER_ID);
+        product.setCreatedBy(UserContext.getUserId());
 
         if (input.getCategoryId() != null) {
             Category category = categoryRepository.findById(input.getCategoryId())
@@ -77,7 +76,7 @@ public class ProductServiceImpl implements ProductService {
 
         productMapper.updateEntityFromInput(input, product);
         product.setSku(input.getSku().trim());
-        product.setUpdatedBy(SYSTEM_USER_ID);
+        product.setUpdatedBy(UserContext.getUserId());
 
         if (input.getCategoryId() != null) {
             Category category = categoryRepository.findById(input.getCategoryId())
@@ -130,7 +129,7 @@ public class ProductServiceImpl implements ProductService {
                 .orElseThrow(() -> new NotFoundException("Product not found with id: " + id));
 
         product.setDeletedAt(Instant.now());
-        product.setDeletedBy(SYSTEM_USER_ID);
+        product.setDeletedBy(UserContext.getUserId());
         productRepository.save(product);
     }
 }
