@@ -38,11 +38,11 @@ CREATE INDEX idx_refresh_tokens_user ON refresh_tokens (user_id);
 CREATE INDEX idx_refresh_tokens_deleted_at ON refresh_tokens (deleted_at);
 
 -- Seed initial admin and demo user where username is the email
--- Default password: password (BCrypt: $2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.)
+-- Default password: password (BCrypt: $2a$10$yK1tujj8KjpjcX.f9xuh9uhkErK4drhHsGY0OTL4p7Qomyj/N83Jq)
 INSERT INTO users (id, username, password, first_name, last_name, role, is_active, created_by)
 VALUES (UUID_TO_BIN('a1000000-0000-0000-0000-000000000001'),
         'admin@tekna.com',
-        '$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.',
+        '$2a$10$yK1tujj8KjpjcX.f9xuh9uhkErK4drhHsGY0OTL4p7Qomyj/N83Jq',
         'Administrador',
         'Sistema',
         'ADMIN',
@@ -50,7 +50,7 @@ VALUES (UUID_TO_BIN('a1000000-0000-0000-0000-000000000001'),
         UUID_TO_BIN('00000000-0000-0000-0000-000000000000')),
        (UUID_TO_BIN('a1000000-0000-0000-0000-000000000002'),
         'gamer@tekna.com',
-        '$2a$10$EblZqNptyYvcLm/VwDCVAuBjzZOI7khzdyGPBr08PpIi0na624b8.',
+        '$2a$10$yK1tujj8KjpjcX.f9xuh9uhkErK4drhHsGY0OTL4p7Qomyj/N83Jq',
         'Gamer',
         'Pro',
         'USER',

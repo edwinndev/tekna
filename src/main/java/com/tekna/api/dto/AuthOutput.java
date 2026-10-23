@@ -12,7 +12,6 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class AuthOutput {
-
     private String accessToken;
     private String refreshToken;
     private String tokenType;
