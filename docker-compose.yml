@@ -15,7 +15,7 @@ services:
       MYSQL_USER: ${MYSQL_USER:-tekna_user}
       MYSQL_PASSWORD: ${MYSQL_PASSWORD:-tekna_password}
     ports:
-      - "${MYSQL_PORT:-3306}:3306"
+      - "127.0.0.1:${MYSQL_PORT:-3306}:3306"
     volumes:
       - mysql_data:/var/lib/mysql
     healthcheck:
@@ -24,6 +24,8 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
+    networks:
+      - tekna-network
 
   tekna-api:
     build:
@@ -45,8 +47,14 @@ services:
       SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-tekna_prod}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
       SERVER_PORT: 8080
     ports:
-      - "${SERVER_PORT:-8080}:8080"
+      - "127.0.0.1:${SERVER_PORT:-8080}:8080"
+    networks:
+      - tekna-network
 
 volumes:
   mysql_data:
     driver: local
+
+networks:
+  tekna-network:
+    external: true
