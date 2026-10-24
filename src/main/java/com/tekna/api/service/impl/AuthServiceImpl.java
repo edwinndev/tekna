@@ -24,6 +24,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.Instant;
+import java.util.Optional;
 import java.util.UUID;
 
 @Slf4j
@@ -31,6 +32,8 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Transactional(readOnly = true)
 public class AuthServiceImpl implements AuthService {
+
+    private static final String DUMMY_BCRYPT_HASH = "$2a$10$yK1tujj8KjpjcX.f9xuh9uhkErK4drhHsGY0OTL4p7Qomyj/N83Jq";
 
     private final UserRepository userRepository;
     private final RefreshTokenRepository refreshTokenRepository;
@@ -43,8 +46,13 @@ public class AuthServiceImpl implements AuthService {
     public AuthOutput login(LoginInput input) {
         log.info("Attempting login for user: {}", input.getUsername());
 
-        User user = userRepository.findByUsername(input.getUsername().trim().toLowerCase())
-                .orElseThrow(() -> new UnauthorizedException("Invalid username or password"));
+        Optional<User> userOptional = userRepository.findByUsername(input.getUsername().trim().toLowerCase());
+        if (userOptional.isEmpty()) {
+            passwordEncoder.matches(input.getPassword(), DUMMY_BCRYPT_HASH);
+            throw new UnauthorizedException("Invalid username or password");
+        }
+
+        User user = userOptional.get();
 
         if (!passwordEncoder.matches(input.getPassword(), user.getPassword())) {
             log.warn("Invalid password for user: {}", input.getUsername());
@@ -83,7 +91,7 @@ public class AuthServiceImpl implements AuthService {
         user.setId(newUserId);
         user.setUsername(username);
         user.setPassword(passwordEncoder.encode(input.getPassword()));
-        user.setRole(input.getRole() != null ? input.getRole() : Role.USER);
+        user.setRole(Role.USER);
         user.setIsActive(true);
 
         UUID currentUserId = UserContext.getUserId();
