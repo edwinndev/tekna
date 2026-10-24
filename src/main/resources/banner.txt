@@ -1,12 +1,12 @@
-${AnsiStyle.BOLD}${AnsiColor.BRIGHT_CYAN}
-   ______ ______ __ __ _   __    ___    ____  ____
-  /_  __// ____// //_// | / /   /   |  / __ \/  _/
-${AnsiColor.BRIGHT_BLUE}   / /  / __/  / ,<  /  |/ /   / /| | / /_/ // /  
-  / /  / /___ / /| |/ /|  /   / ___ |/ ____// /   
-${AnsiColor.BRIGHT_MAGENTA} /_/  /_____//_/ |_/_/ |_/   /_/  |_/_/   /___/   
-${AnsiStyle.NORMAL}${AnsiColor.BRIGHT_BLACK}
- -----------------------------------------------------------
-${AnsiColor.BRIGHT_CYAN} :: Tekna E-Commerce & Gaming API ::   ${AnsiColor.BRIGHT_WHITE}(v${application.version})
-${AnsiColor.BRIGHT_MAGENTA} :: Framework ::                       ${AnsiColor.BRIGHT_WHITE}Spring Boot v${spring-boot.version}
-${AnsiColor.BRIGHT_BLACK} -----------------------------------------------------------
+${AnsiColor.BRIGHT_CYAN}  ████████╗███████╗██╗  ██╗███╗   ██╗ █████╗ 
+${AnsiColor.BRIGHT_CYAN}  ╚══██╔══╝██╔════╝██║ ██╔╝████╗  ██║██╔══██╗
+${AnsiColor.BRIGHT_BLUE}     ██║   █████╗  █████╔╝ ██╔██╗ ██║███████║
+${AnsiColor.BRIGHT_BLUE}     ██║   ██╔══╝  ██╔═██╗ ██║╚██╗██║██╔══██║
+${AnsiColor.BRIGHT_WHITE}     ██║   ███████╗██║  ██╗██║ ╚████║██║  ██║
+${AnsiColor.BRIGHT_BLACK}     ╚═╝   ╚══════╝╚═╝  ╚═╝╚═╝  ╚═══╝╚═╝  ╚═╝
+
+${AnsiColor.BRIGHT_BLACK}  · · ────────────────────────────────────────── · ·
+${AnsiColor.BRIGHT_WHITE}   Tekna E-Commerce Engine   ${AnsiColor.BRIGHT_BLACK}│   ${AnsiColor.BRIGHT_CYAN}v${application.version}
+${AnsiColor.BRIGHT_BLACK}   Powered by Spring Boot    │   ${AnsiColor.BRIGHT_WHITE}v${spring-boot.version}
+${AnsiColor.BRIGHT_BLACK}  · · ────────────────────────────────────────── · ·
 ${AnsiColor.DEFAULT}
