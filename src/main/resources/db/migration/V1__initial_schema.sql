@@ -68,6 +68,55 @@ CREATE TABLE IF NOT EXISTS inventory_movements
     CONSTRAINT fk_movements_supplier FOREIGN KEY (supplier_id) REFERENCES suppliers (id)
 );
 
+CREATE TABLE IF NOT EXISTS users
+(
+    id         BINARY(16)   NOT NULL PRIMARY KEY,
+    username   VARCHAR(100) NOT NULL UNIQUE,
+    password   VARCHAR(255) NOT NULL,
+    first_name VARCHAR(100) NULL,
+    last_name  VARCHAR(100) NULL,
+    role       VARCHAR(30)  NOT NULL DEFAULT 'USER',
+    is_active  BOOLEAN      NOT NULL DEFAULT TRUE,
+    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    created_by BINARY(16)   NOT NULL,
+    updated_at TIMESTAMP(3) NULL ON UPDATE CURRENT_TIMESTAMP(3),
+    updated_by BINARY(16)   NULL,
+    deleted_at TIMESTAMP(3) NULL,
+    deleted_by BINARY(16)   NULL
+);
+
+CREATE TABLE IF NOT EXISTS refresh_tokens
+(
+    id         BINARY(16)   NOT NULL PRIMARY KEY,
+    user_id    BINARY(16)   NOT NULL,
+    token      VARCHAR(255) NOT NULL UNIQUE,
+    expires_at TIMESTAMP(3) NOT NULL,
+    revoked    BOOLEAN      NOT NULL DEFAULT FALSE,
+    created_at TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    created_by BINARY(16)   NOT NULL,
+    updated_at TIMESTAMP(3) NULL ON UPDATE CURRENT_TIMESTAMP(3),
+    updated_by BINARY(16)   NULL,
+    deleted_at TIMESTAMP(3) NULL,
+    deleted_by BINARY(16)   NULL,
+    CONSTRAINT fk_refresh_tokens_user FOREIGN KEY (user_id) REFERENCES users (id)
+);
+
+CREATE TABLE IF NOT EXISTS alerts
+(
+    id                 BINARY(16)   NOT NULL PRIMARY KEY,
+    product_id         BINARY(16)   NOT NULL,
+    stock_recorded     INT          NOT NULL,
+    min_stock_snapshot INT          NOT NULL,
+    status             VARCHAR(30)  NOT NULL DEFAULT 'PENDING',
+    created_at         TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP(3),
+    created_by         BINARY(16)   NOT NULL,
+    updated_at         TIMESTAMP(3) NULL ON UPDATE CURRENT_TIMESTAMP(3),
+    updated_by         BINARY(16)   NULL,
+    deleted_at         TIMESTAMP(3) NULL,
+    deleted_by         BINARY(16)   NULL,
+    CONSTRAINT fk_alerts_product FOREIGN KEY (product_id) REFERENCES products (id)
+);
+
 CREATE INDEX idx_products_category ON products (category_id);
 CREATE INDEX idx_products_deleted_at ON products (deleted_at);
 CREATE INDEX idx_products_stock ON products (stock);
@@ -75,3 +124,11 @@ CREATE INDEX idx_movements_product ON inventory_movements (product_id);
 CREATE INDEX idx_movements_supplier ON inventory_movements (supplier_id);
 CREATE INDEX idx_movements_created_at ON inventory_movements (created_at);
 CREATE INDEX idx_movements_type ON inventory_movements (movement_type);
+CREATE INDEX idx_users_username ON users (username);
+CREATE INDEX idx_users_deleted_at ON users (deleted_at);
+CREATE INDEX idx_refresh_tokens_token ON refresh_tokens (token);
+CREATE INDEX idx_refresh_tokens_user ON refresh_tokens (user_id);
+CREATE INDEX idx_refresh_tokens_deleted_at ON refresh_tokens (deleted_at);
+CREATE INDEX idx_alerts_product_id ON alerts (product_id);
+CREATE INDEX idx_alerts_status ON alerts (status);
+CREATE INDEX idx_alerts_deleted_at ON alerts (deleted_at);

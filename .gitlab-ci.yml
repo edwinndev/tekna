@@ -1,0 +1,16 @@
+stages:
+  - deploy
+
+deploy:
+  stage: deploy
+  tags:
+    - tekna-platform
+  rules:
+    - if: '$CI_COMMIT_BRANCH == "master"'
+  script:
+    - echo "Starting automated deployment for Tekna API..."
+    - docker compose version
+    - docker compose up -d --build --remove-orphans
+    - echo "Checking service health and status..."
+    - docker compose ps
+    - docker image prune -f

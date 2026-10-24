@@ -1,6 +1,5 @@
 package com.tekna.api.common.pagination;
 
-import jakarta.validation.Valid;
 import jakarta.validation.constraints.Max;
 import jakarta.validation.constraints.Min;
 import lombok.Getter;
@@ -20,6 +19,5 @@ public class SearchInput<T> {
     private String sortBy = "createdAt";
     private String sortDirection = "DESC";
 
-    @Valid
     private T filter;
 }

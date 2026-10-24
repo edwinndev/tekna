@@ -1,6 +1,7 @@
 package com.tekna.api.entity;
 
 import com.tekna.api.common.entity.BaseEntity;
+import com.tekna.api.common.exception.InsufficientStockException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,7 +11,6 @@ import jakarta.persistence.Table;
 import lombok.Getter;
 import lombok.Setter;
 import org.hibernate.annotations.SQLRestriction;
-
 import java.math.BigDecimal;
 
 @Getter
@@ -41,4 +41,27 @@ public class Product extends BaseEntity {
 
     @Column(name = "min_stock", nullable = false)
     private Integer minStock = 5;
+
+    public void increaseStock(int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than zero");
+        }
+        this.stock = (this.stock == null ? 0 : this.stock) + quantity;
+    }
+
+    public void decreaseStock(int quantity) {
+        if (quantity <= 0) {
+            throw new IllegalArgumentException("Quantity must be greater than zero");
+        }
+        int currentStock = (this.stock == null ? 0 : this.stock);
+        if (currentStock < quantity) {
+            throw new InsufficientStockException("Insufficient stock for product '" + this.name + "'. Current stock: "
+                    + currentStock + ", requested: " + quantity);
+        }
+        this.stock = currentStock - quantity;
+    }
+
+    public boolean isLowStock() {
+        return this.stock != null && this.minStock != null && this.stock <= this.minStock;
+    }
 }

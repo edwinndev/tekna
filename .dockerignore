@@ -1,0 +1,15 @@
+.git
+.gitignore
+.gitattributes
+.idea
+.vscode
+target
+*.log
+.mvn
+mvnw
+mvnw.cmd
+*.md
+docker-compose*.yml
+.gitlab-ci.yml
+.env
+.env.*

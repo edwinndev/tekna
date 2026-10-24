@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import java.util.UUID;
 
 @RestController
-@RequestMapping("/v1/movements")
+@RequestMapping("/v1/inventory/movements")
 @RequiredArgsConstructor
 @Tag(name = "Inventory Movements", description = "Stock entries, exits and movement history endpoints")
 public class InventoryMovementController {

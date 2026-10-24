@@ -1,0 +1,52 @@
+name: tekna-api
+
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: tekna-mysql
+    restart: unless-stopped
+    command: >
+      --default-authentication-plugin=mysql_native_password
+      --character-set-server=utf8mb4
+      --collation-server=utf8mb4_unicode_ci
+    environment:
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
+      MYSQL_DATABASE: ${MYSQL_DATABASE:-tekna_prod}
+      MYSQL_USER: ${MYSQL_USER:-tekna_user}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD:-tekna_password}
+    ports:
+      - "${MYSQL_PORT:-3306}:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  tekna-api:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tekna-api:latest
+    container_name: tekna-api
+    restart: unless-stopped
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: ${SPRING_PROFILES_ACTIVE:-prod}
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_NAME: ${MYSQL_DATABASE:-tekna_prod}
+      DB_USERNAME: ${MYSQL_USER:-tekna_user}
+      DB_PASSWORD: ${MYSQL_PASSWORD:-tekna_password}
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-tekna_prod}?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+      SERVER_PORT: 8080
+    ports:
+      - "${SERVER_PORT:-8080}:8080"
+
+volumes:
+  mysql_data:
+    driver: local

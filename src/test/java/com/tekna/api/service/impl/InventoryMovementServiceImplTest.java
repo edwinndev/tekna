@@ -15,6 +15,7 @@ import com.tekna.api.mapper.InventoryMovementMapper;
 import com.tekna.api.repository.InventoryMovementRepository;
 import com.tekna.api.repository.ProductRepository;
 import com.tekna.api.repository.SupplierRepository;
+import com.tekna.api.service.AlertService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -53,6 +54,9 @@ class InventoryMovementServiceImplTest {
 
     @Mock
     private InventoryMovementMapper movementMapper;
+
+    @Mock
+    private AlertService alertService;
 
     @InjectMocks
     private InventoryMovementServiceImpl movementService;
